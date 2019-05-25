@@ -1,27 +1,27 @@
 ApuMmlPlayer
 ============
 
-疑似APUによるMMLプレイヤーです。
-出力結果は "[PHP で PCM wav ファイル作成][1]" の function makeWaveData を使って、WAVファイルで保存できます。
+疑似APUによるMMLプレイヤーです。  
+出力結果は "[PHP で PCM wav ファイル作成][1]" の function makeWaveData を使って、WAVファイルで保存できます。  
 
-矩形波2ch、三角波1ch、ノイズ1chの単純な出力ができます。
+矩形波2ch、三角波1ch、ノイズ1chの単純な出力ができます。  
 
-スイープ制御等の複雑な処理は未実装です。
-MML解析および演奏処理は未実装です。
+スイープ制御等の複雑な処理は未実装です。  
+MML解析および演奏処理は未実装です。  
 
-It is an MML player by pseudo APU.
-The output can be saved as a WAV file using function makeWaveData in "[PHP で PCM wav ファイル作成][1]".
+It is an MML player by pseudo APU.  
+The output can be saved as a WAV file using function makeWaveData in "[PHP で PCM wav ファイル作成][1]".  
 
-Simple output of 2 channels of square wave, 1 channel of triangle wave and 1 channel of noise is possible.
+Simple output of 2 channels of square wave, 1 channel of triangle wave and 1 channel of noise is possible.  
 
-Complex processing such as sweep control is not implemented yet.
-MML analysis and performance processing are not implemented yet.
+Complex processing such as sweep control is not implemented yet.  
+MML analysis and performance processing are not implemented yet.  
 
 
 Usage
 -----
 
-test.cpp
+test.php
 
 	<?php
 	require_once('ApuMmlPlayer.php');
