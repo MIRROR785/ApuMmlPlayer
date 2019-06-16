@@ -22,7 +22,7 @@ $data = $player->testSound([
 		1 => ['Voice' => 0, 'Volume' => 15, 'NoteNo' => AudioUtil::getNoteNo(4, 9)],
 	],
 ]);
-$handle = fopen("pulse1.wav", "wb");
+$handle = fopen(__DIR__ . '/pulse1.wav', 'wb');
 fwrite($handle, makeWaveData($data, $player->nChannel, $player->sampleBits, $player->sampleRate));
 fclose($handle);
 
@@ -33,7 +33,7 @@ $data = $player->testSound([
 		2 => ['Voice' => 1, 'Volume' => 15, 'NoteNo' => AudioUtil::getNoteNo(4, 6)],
 	],
 ]);
-$handle = fopen("pulse2.wav", "wb");
+$handle = fopen(__DIR__ . '/pulse2.wav', 'wb');
 fwrite($handle, makeWaveData($data, $player->nChannel, $player->sampleBits, $player->sampleRate));
 fclose($handle);
 
@@ -43,7 +43,7 @@ $data = $player->testSound([
 		3 => ['Voice' => 0, 'Volume' => 15, 'NoteNo' => AudioUtil::getNoteNo(4, 9)],
 	],
 ]);
-$handle = fopen("triangle.wav", "wb");
+$handle = fopen(__DIR__ . '/triangle.wav', 'wb');
 fwrite($handle, makeWaveData($data, $player->nChannel, $player->sampleBits, $player->sampleRate));
 fclose($handle);
 
@@ -53,7 +53,7 @@ $data = $player->testSound([
 		4 => ['Voice' => 0, 'Volume' => 15, 'NoteNo' => AudioUtil::getNoteNo(1, 0)],
 	],
 ]);
-$handle = fopen("noise.wav", "wb");
+$handle = fopen(__DIR__ . '/noise.wav', 'wb');
 fwrite($handle, makeWaveData($data, $player->nChannel, $player->sampleBits, $player->sampleRate));
 fclose($handle);
 
@@ -67,7 +67,7 @@ $data = $player->testSound([
 		4 => ['Voice' => 0, 'Volume' => 15, 'NoteNo' => AudioUtil::getNoteNo(1, 0)],
 	],
 ]);
-$handle = fopen("all-1.0.wav", "wb");
+$handle = fopen(__DIR__ . '/all-1.0.wav', 'wb');
 fwrite($handle, makeWaveData($data, $player->nChannel, $player->sampleBits, $player->sampleRate));
 fclose($handle);
 
@@ -80,6 +80,6 @@ $data = $player->testSound([
 		4 => ['Voice' => 0, 'Volume' => 15, 'NoteNo' => AudioUtil::getNoteNo(1, 0)],
 	],
 ]);
-$handle = fopen("all-0.8.wav", "wb");
+$handle = fopen(__DIR__ . '/all-0.8.wav', 'wb');
 fwrite($handle, makeWaveData($data, $player->nChannel, $player->sampleBits, $player->sampleRate));
 fclose($handle);

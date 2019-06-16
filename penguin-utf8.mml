@@ -1,0 +1,157 @@
+#Title		"Penguin"
+#Composer	"Alma & Sakura"
+#Copyright	"Alma & Sakura"
+
+#Code		"../../bin/nsd.bin"
+
+#BGM	2
+#SE		8
+
+//--------------------------------------
+//	エンベロープ定義
+//--------------------------------------
+#OffsetEv	0
+#OffsetEm	10000
+#OffsetEn	20000
+#OffsetE@	30000
+
+//音量エンベロープ
+E(    0){	15	L	12	R	10	8	7	6	D0	5	D1	4	D2	3	D3	L	2	}
+E(    1){	15		11	9	7	6	L	5	R	5	D1	4	D2	3	D3	L	2	}
+
+//音程エンベロープ
+E(10000){	0	D15	L	1	2	3	2	1	0	-1	-2	-3	-2	-1	}	//LFO
+
+//ノートエンベロープ
+E(20000){	0	(0,-32,16)	L	-32	}	//Down
+
+//音色エンベロープ
+E(30000){	3	2	L	0	}
+
+SE(0) {
+	TR1 l12 o6 eg>ecdg
+}
+
+SE(1) {
+	TR1 l32 o4 a<a&>a&>a
+}
+
+SE(2) {
+	TR1 l16 o7 b&e8
+}
+
+SE(3) {
+	TR1 l16 o6 cf
+}
+
+SE(4) {
+	TR1 l16 o4 g>g&>g
+}
+
+SE(5) {
+	TR1 l16 o1 ccc&
+}
+
+SE(6) {
+	TR1 l32 o5 a<a4>as4
+}
+
+SE(7) {
+	TR1 l32 o6 c<g>ceg>c<g<a->ce-a-ea>ce-a-g-<b->dfb-fb>cea-e8
+}
+
+BGM(0){
+	t120
+
+	TR1	l8 L o6
+	TR2	l8 L o3 E@0
+	TR3	l8 L o6
+
+TR1 d2.dd
+TR1 drr4r2
+TR1 r<f+gabagf+
+TR1 ra>dc+4<bar
+TR1 ba+b>c+<aged
+TR1 ef+gba4.r
+TR1 r>dr4rdr4
+TR1 rc+r4rc+r4
+TR1 r<br4bgf+d
+TR1 c+c+dedrr4
+TR1 r1
+TR1 r1
+TR1 r1
+TR1 r2r4rf+
+TR1 ba+ba+b>c+de
+TR1 <gf+gab>cc+<a
+
+TR3 r1
+TR3 e4re4gf+e
+TR3 f+2&f+agf+
+TR3 f+2rf+dg
+TR3 b2&b4f+4
+TR3 f+4aggf+f+e
+TR3 rf+garf+ga
+TR3 >dc+c+4&c+<bf+g
+TR3 b2a2
+TR3 g4ggf+2
+TR3 r1
+TR3 r2r4f+4
+TR3 gb>cedc+4<b
+TR3 f+f+edc+4e4
+TR3 f+4a4b4>de
+TR3 <e4g4b>cc+<a
+
+TR2 dr<ar>drd<a
+TR2 >dr<ar>drd<a
+TR2 >dr<ar>drd<a
+TR2 >dr<ar>drdc+
+TR2 <brbrf+gf+d
+TR2 c+eaggf+f+e
+TR2 drardrad
+TR2 c+rf+rc+rf+c+
+TR2 <br>f+r<b>gf+d
+TR2 c+edc+dra+4
+TR2 ba+b4.a+>c+4
+TR2 def+4.f+d4
+TR2 gg4ggg4g
+TR2 f+gagf+edc+
+TR2 <brgregf+e
+TR2 f+4e4d4c+4
+}
+
+BGM(1){
+
+	t120
+
+	TR1	l8 L o6
+	TR2	l8 L o4
+	TR3	l8 L o6
+
+TR1 rgggggab
+TR1 >c<afarab>c
+TR1 d<gr>frfed
+TR1 e<g>cerrrr
+TR1 r<gggggab
+TR1 >c<a>cfrfff
+TR1 gggggggg
+/*TR1 gagaga>cg*/
+TR1 fffeerrr
+
+TR2 cc<g>ccc<g>c
+TR2 ffcfffcf
+TR2 gbb>ddd<bg
+TR2 cc<g>ccc<g>c
+TR2 cc<g>ccc<g>c
+TR2 ffffg+g+g+g+
+TR2 ggb>d<ggb>d
+TR2 <ccefffed
+
+TR3 reeeeefg
+TR3 afcfrfga
+TR3 bdr>drdc<b
+TR3 >c<da>crrrr
+TR3 r<eeeeefg
+TR3 afa>crccc
+TR3 dededef<b
+TR3 >c<gb>ccc<ba
+}
