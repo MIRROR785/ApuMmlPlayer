@@ -711,7 +711,7 @@ class MmlContainerParser {
 
 	private function parseTypeDefine($lex) {
 		$this->parseValue->set($lex->value);
-		$this->parseValue->push($container);
+		$this->parseValue->push($this->container);
 		$this->clearParseValue();
 	}
 
