@@ -6,9 +6,9 @@
 //
 
 class MmlContainer {
-	public $define;
-	public $envelope;
-	public $music;
+	private $define;
+	private $envelope;
+	private $music;
 
 	public function __construct() {
 		$this->define = [];
@@ -16,19 +16,76 @@ class MmlContainer {
 		$this->music = [];
 	}
 
+	public function isDefine($name) {
+		$tmp = new MmlDefine($name);
+		return array_key_exists($this->define, $tmp->getKey());
+	}
+
+	public function hasEnvelope($index) {
+		$tmp = new MmlEnvelope($index);
+		return array_key_exists($this->envelope, $tmp->getKey());
+	}
+
+	public function hasMusic($type, $index) {
+		$tmp = new MmlMusic($type, $index);;
+		return array_key_exists($this->music, $tmp->getKey());
+	}
+
+	public function setDefine($define) {
+		$this->define[$define->getKey()] = $define;
+	}
+
+	public function setEnvelope($envelope) {
+		$this->envelope[$envelope->getKey()] = $envelope;
+	}
+
+	public function setMusic($music) {
+		$this->music[$music->getKey()] = $music;
+	}
+
+	public function getDefine($name) {
+		$tmp = new MmlDefine($name);
+		$key = $tmp->getKey();
+		return array_key_exists($this->define, $key) ?
+			$this->define[$key] : null;
+	}
+
+	public function getDevelope($index) {
+		$tmp = new MmlEnvelope($index);
+		$key = $tmp->getKey();
+		return array_key_exists($this->envelope, $key) ?
+			$this->envelope[$key] : null;
+	}
+
+	public function getMusic($type, $index) {
+		$tmp = new MmlMusic($type, $index);
+		$key = $tmp->getKey();
+		return array_key_exists($this->music, $key) ?
+			$this->music[$key] : null;
+	}
+
 	public function getMusicCount($type) {
-		if (!array_key_exists($this->define, $type)) {
-			$count = 0;
-			$regex = '/^'.$type.'/is';
-			foreach (array_keys($this->music) as $key) {
-				if (preg_match($regex, $key)) {
-					++$count;
+		$count = 0;
+
+		if (MmlMusic::isType($type)) {
+			$name = '#'.$type;
+			$define = $this->getDefine($name);
+			if ($define !== null) {
+				$count = intval($define->value);
+
+			} else {
+				$regex = '/^'.$type.'/is';
+				foreach (array_keys($this->music) as $key) {
+					if (preg_match($regex, $key)) {
+						++$count;
+					}
 				}
+				$tmp = new MmlDefine($name, $count);
+				$this->setDefine($tmp);
 			}
-			$this->define[$type] = $count;
 		}
 
-		return intval($this->define[$type]);
+		return $count;
 	}
 }
 
@@ -69,13 +126,26 @@ class MmlMusic {
 	const TYPE_BGM = 'BGM';
 	const TYPE_SUB = 'SUB';
 
+	public static function isType($type) {
+		$type = strtoupper($type);
+		if ($type === 'S') {
+			$type = MmlMusic::TYPE_SUB;
+		}
+
+		return ($type === MmlMusic::TYPE_SE
+				|| $type === MmlMusic::TYPE_BGM
+				|| $type === MmlMusic::SUB);
+	}
+
 	public $type;
 	public $index;
+	public $define;
 	public $values;
 
-	public function __construct($type = null, $index = null, $values = null) {
+	public function __construct($type = null, $index = null, $define = null, $values = null) {
 		$this->type = $type;
 		$this->index = $index;
+		$this->define = ($define !=null) ? $define : [];
 		$this->values = ($values !== null) ? $values : [];
 	}
 
@@ -96,6 +166,22 @@ class MmlMusic {
 		}
 		return $key.$this->index;
 	}
+
+	public function isDefine($name) {
+		$tmp = new MmlDefine($name);
+		return array_key_exists($this->define, $tmp->getKey());
+	}
+
+	public function setDefine($define) {
+		$this->define[$define->getKey()] = $define;
+	}
+
+	public function getDefine($name) {
+		$tmp = new MmlDefine($name);
+		$key = $tmp->getKey();
+		return array_key_exists($this->define, $key) ?
+			$this->define[$key] : null;
+	}
 }
 
 class MmlDefineWriter {
@@ -110,8 +196,11 @@ class MmlDefineWriter {
 	}
 
 	public function push($container) {
-		$key = $this->define->getKey();
-		$container->define[$key] = $this->define;
+		$container->setDefine($this->define);
+	}
+
+	public function getContainer() {
+		return null;
 	}
 }
 
@@ -131,8 +220,11 @@ class MmlEnvelopeWriter {
 	}
 
 	public function push($container) {
-		$key = $this->envelope->getKey();
-		$container->envelope[$key] = $this->envelope;
+		$container->setEnvelope($this->envelope);
+	}
+
+	public function getContainer() {
+		return null;
 	}
 }
 
@@ -157,8 +249,11 @@ class MmlMusicWriter {
 	}
 
 	public function push($container) {
-		$key = $this->music->getKey();
-		$container->music[$key] = $this->music;
+		$container->setMusic($this->music);
+	}
+
+	public function getContainer() {
+		return $this->music;
 	}
 }
 
@@ -185,6 +280,20 @@ class MmlContainerLexStatus {
 								$value = '') {
 		$this->status = $status;
 		$this->terminater = $terminater;
+		$this->value = $value;
+	}
+}
+
+class MmlContainerParserInfo {
+	public $type;
+	public $param;
+	public $value;
+
+	public function __construct($type = MmlContainerParser::NOTHING,
+								$param = MmlContainerParser::PARSE_PARAM_NAME,
+								$value = null) {
+		$this->type = $type;
+		$this->param = $param;
 		$this->value = $value;
 	}
 }
@@ -216,6 +325,7 @@ class MmlContainerParser {
 	const LEX_ATTR_SEPARATOR     = 0x08;
 	const LEX_ATTR_START         = 0x10;
 	const LEX_ATTR_END           = 0x20;
+	const LEX_ATTR_DOUBLE_CHAR   = 0x40;
 	const LEX_ATTR_EOL           = 0x80;
 
 	const PARSE_TYPE_DEFINE         = 1;	// #name value
@@ -241,9 +351,8 @@ class MmlContainerParser {
 	private $lexStatusStack;
 
 	private $nameInfos;
-	private $parseType;
-	private $parseParam;
-	private $parseValue;
+	private $parseInfoStack;
+	private $parseInfo;
 
 	private $container;
 
@@ -258,6 +367,7 @@ class MmlContainerParser {
 
 			'*' => new MmlContainerLexStatus(MmlContainerLexStatus::COMMENT_BLOCK),
 			'/' => new MmlContainerLexStatus(MmlContainerLexStatus::COMMENT_LINE ),
+			';' => new MmlContainerLexStatus(MmlContainerLexStatus::COMMENT_LINE ),
 			];
 
 		$this->nameInfos = [
@@ -278,7 +388,8 @@ class MmlContainerParser {
 		$this->column = 0;
 
 		$this->lexStatusStack = [new MmlContainerLexStatus(), new MmlContainerLexStatus()];
-		$this->clearParseValue();
+		$this->parseInfoStack = [];
+		$this->parseInfo = new MmlContainerParserInfo();
 	}
 
 	public function parse($mml) {
@@ -341,7 +452,7 @@ class MmlContainerParser {
 		$this->pushLexStatus($lex);
 
 		if ($this->status === MmlContainerParser::STATUS_READ
-			&& $this->parseType === MmlContainerParser::NOTHING) {
+			&& $this->parseInfo->type === MmlContainerParser::NOTHING) {
 			$this->status = MmlContainerParser::STATUS_DONE;
 		}
 	}
@@ -361,7 +472,7 @@ class MmlContainerParser {
 		return $lex;
 	}
 
-	private function analyzeChar($ch0, $ch1, &$lexType, &$lexAttr) {
+	private function analyzeChar(&$ch0, &$ch1, &$lexType, &$lexAttr) {
 		// Check character type and attribute.
 		switch ($ch0) {
 		case "\\":
@@ -402,15 +513,19 @@ class MmlContainerParser {
 		case '#':
 			$lexType = MmlContainerParser::LEX_TYPE_DEFINE;
 			break;
+		case ';':
+			$lexType = MmlContainerParser::LEX_TYPE_COMMENT_LINE;
+			$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_START;
+			break;
 		case '/':
 			switch ($ch1) {
 			case '/':
 				$lexType = MmlContainerParser::LEX_TYPE_COMMENT_LINE;
-				$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_START;
+				$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_START | MmlContainerParser::LEX_ATTR_DOUBLE_CHAR;
 				break;
 			case '*':
 				$lexType = MmlContainerParser::LEX_TYPE_COMMENT_BLOCK;
-				$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_START;
+				$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_START | MmlContainerParser::LEX_ATTR_DOUBLE_CHAR;
 				break;
 			}
 			break;
@@ -418,7 +533,7 @@ class MmlContainerParser {
 			switch ($ch1) {
 			case '/':
 				$lexType = MmlContainerParser::LEX_TYPE_COMMENT_BLOCK;
-				$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_END;
+				$lexAttr = MmlContainerParser::LEX_ATTR_COMMENT | MmlContainerParser::LEX_ATTR_END | MmlContainerParser::LEX_ATTR_DOUBLE_CHAR;
 				break;
 			}
 			break;
@@ -465,10 +580,14 @@ class MmlContainerParser {
 		case MmlContainerParser::LEX_TYPE_COMMENT_LINE:
 			if ($lexAttr & MmlContainerParser::LEX_ATTR_START) {
 				$this->pushLexStatus($lex);
-				$bi = $this->blockInfos[$ch1];
+				if ($lexAttr & MmlContainerParser::LEX_ATTR_DOUBLE_CHAR) {
+					$bi = $this->blockInfos[$ch1];
+					++$this->column;
+				} else {
+					$bi = $this->blockInfos[$ch0];
+				}
 				$lex = new MmlContainerLexStatus($bi->status);
 				$ch0 = null;
-				++$this->column;
 			} else {
 				$this->status = MmlContainerParser::STATUS_ERROR;
 				$this->message = 'Not found comment start.';
@@ -521,6 +640,7 @@ class MmlContainerParser {
 
 	private function analyzeStatusValue($lexType, $lexAttr, &$lex, &$ch0, &$ch1) {
 		$quoteEnabled = false;
+		$bracketEnabled = false;
 		$pre = $this->getLexStatus();
 		//echo 'pre='; var_dump($pre);
 		switch ($pre->status) {
@@ -539,8 +659,9 @@ class MmlContainerParser {
 			}
 			break;
 
-		case MmlContainerLexStatus::PARENTHESES:
 		case MmlContainerLexStatus::CURLY_BRACKET:
+			$bracketEnabled = true;
+		case MmlContainerLexStatus::PARENTHESES:
 			// Check block end.
 			if ($ch0 === $pre->terminater) {
 				//echo 'find block end. '.$ch0."\n";
@@ -676,31 +797,60 @@ class MmlContainerParser {
 		return $result;
 	}
 
-	private function clearParseValue() {
-		$this->parseType = MmlContainerParser::NOTHING;
-		$this->parseParam = MmlContainerParser::PARSE_PARAM_NAME;
-		$this->parseValue = null;
+	private function pushParseInfo() {
+		if ($this->parseInfo !== null) {
+			array_push($this->parseInfoStack, $this->parseInfo);
+		}
+		$this->parseInfo = null;
 	}
 
-	private function parseTypeName($lex) {
-		$this->parseType = $this->findParseType($lex->value);
-		switch ($this->parseType) {
+	private function popParseInfo() {
+		if (count($this->parseInfoStack) > 0) {
+			$this->parseInfo = array_pop($this->parseInfoStack);
+		} else {
+			$this->parseInfo = new MmlContainerParserInfo();;
+		}
+	}
+
+	private function getParseInfoStack($offset = 1) {
+		$count = count($this->parseInfoStack);
+		$index = $count - $offset;
+		return (0 <= $index && $index < $count) ? $this->parseInfoStack[$index] : null;
+	}
+
+	private function getParseValueContainer() {
+		$container = null;
+		$parseInfo = $this->getParseInfoStack();
+		if ($parseInfo !== null) {
+			$container = $parseInfo->value->getContainer();
+		}
+		return ($container === null) ? $this->container : $container;
+	}
+
+	private function parseTypeName($lex, $parseType) {
+		switch ($parseType) {
 		case MmlContainerParser::PARSE_TYPE_DEFINE:
 			if (mb_strlen($lex->value) <= 1) {
 				$this->status = MmlContainerParser::STATUS_ERROR;
 				$this->message = 'Not found define name.';
 				throw new MmlContainerSyntaxErrorException();
 			}
-			$this->parseParam = MmlContainerParser::PARSE_PARAM_VALUE;
-			$this->parseValue = new MmlDefineWriter(new MmlDefine(mb_substr($lex->value, 1)));
+			$this->parseInfo = new MmlContainerParserInfo(
+				$parseType,
+				MmlContainerParser::PARSE_PARAM_VALUE,
+				new MmlDefineWriter(new MmlDefine($lex->value)));
 			break;
 		case MmlContainerParser::PARSE_TYPE_ENVELOPE:
-			$this->parseParam = MmlContainerParser::PARSE_PARAM_PAREN_START;
-			$this->parseValue = new MmlEnvelopeWriter(new MmlEnvelope());
+			$this->parseInfo = new MmlContainerParserInfo(
+				$parseType,
+				MmlContainerParser::PARSE_PARAM_PAREN_START,
+				new MmlEnvelopeWriter(new MmlEnvelope()));
 			break;
 		case MmlContainerParser::PARSE_TYPE_MUSIC:
-			$this->parseParam = MmlContainerParser::PARSE_PARAM_PAREN_START;
-			$this->parseValue = new MmlMusicWriter(new MmlMusic($lex->value));
+			$this->parseInfo = new MmlContainerParserInfo(
+				$parseType,
+				MmlContainerParser::PARSE_PARAM_PAREN_START,
+				new MmlMusicWriter(new MmlMusic($lex->value)));
 			break;
 		default:
 			$this->status = MmlContainerParser::STATUS_ERROR;
@@ -710,20 +860,20 @@ class MmlContainerParser {
 	}
 
 	private function parseTypeDefine($lex) {
-		$this->parseValue->set($lex->value);
-		$this->parseValue->push($this->container);
-		$this->clearParseValue();
+		$this->parseInfo->value->set($lex->value);
+		$this->parseInfo->value->push($this->getParseValuecontainer());
+		$this->popParseInfo();
 	}
 
 	private function parseTypeValue($lex) {
-		switch ($this->parseParam) {
+		switch ($this->parseInfo->param) {
 		case MmlContainerParser::PARSE_PARAM_PAREN_START:
 			if ($lex->value !== '(') {
 				$this->status = MmlContainerParser::STATUS_ERROR;
 				$this->message = 'Not found parentheses. ('.$lex->value.')';
 				throw new MmlContainerSyntaxErrorException();
 			}
-			++$this->parseParam;
+			++$this->parseInfo->param;
 			break;
 
 		case MmlContainerParser::PARSE_PARAM_INDEX:
@@ -732,8 +882,8 @@ class MmlContainerParser {
 				$this->message = 'Illegal index parameter. ('.$lex->value.')';
 				throw new MmlContainerSyntaxErrorException();
 			}
-			$this->parseValue->setIndex(intval($lex->value));
-			++$this->parseParam;
+			$this->parseInfo->value->setIndex(intval($lex->value));
+			++$this->parseInfo->param;
 			break;
 
 		case MmlContainerParser::PARSE_PARAM_PAREN_END:
@@ -742,7 +892,7 @@ class MmlContainerParser {
 				$this->message = 'Not found parentheses. ('.$lex->value.')';
 				throw new MmlContainerSyntaxErrorException();
 			}
-			++$this->parseParam;
+			++$this->parseInfo->param;
 			break;
 
 		case MmlContainerParser::PARSE_PARAM_BRACKET_START:
@@ -751,16 +901,22 @@ class MmlContainerParser {
 				$this->message = 'Not found curly bracket. ('.$lex->value.')';
 				throw new MmlContainerSyntaxErrorException();
 			}
-			++$this->parseParam;
+			++$this->parseInfo->param;
 			break;
 
 		case MmlContainerParser::PARSE_PARAM_VALUE:
 		case MmlContainerParser::PARSE_PARAM_BRACKET_END:
 			if ($lex->value === '}') {
-				$this->parseValue->push($this->container);
-				$this->clearParseValue();
+				$this->parseInfo->value->push($this->getParseValuecontainer());
+				$this->popParseInfo();
 			} else {
-				$this->parseValue->add($lex->value);
+				$parseType = $this->findParseType($lex->value);
+				if ($parseType !== MmlContainerParser::NOTHING) {
+					$this->pushParseInfo();
+					$this->parseTypeName($lex, $parseType);
+				} else {
+					$this->parseInfo->value->add($lex->value);
+				}
 			}
 			break;
 		}
@@ -768,7 +924,7 @@ class MmlContainerParser {
 
 	private function parseValue($lex) {
 		//echo 'parseValue: status='.$lex->status.', value='.$lex->value."\n";
-		switch ($this->parseType) {
+		switch ($this->parseInfo->type) {
 		case MmlContainerParser::PARSE_TYPE_DEFINE:
 			$this->parseTypeDefine($lex);
 			break;
@@ -777,7 +933,8 @@ class MmlContainerParser {
 			$this->parseTypeValue($lex);
 			break;
 		default:
-			$this->parseTypeName($lex);
+			$parseType = $this->findParseType($lex->value);
+			$this->parseTypeName($lex, $parseType);
 			break;
 		}
 	}
