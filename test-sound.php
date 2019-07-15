@@ -8,7 +8,7 @@ $player->setup([[
 	'Name' => 'apu1',
 	'Devices' => [
 		// device number (1:pulse1, 2:pulse2, 3:triangle, 4:noise)
-		// => ['Position' => [ -1.5 <= panning <= 1.5, -1.0 <= scale offset <= 1.0 ]
+		// => ['Position' => [ -1.5 <= panning <= 1.5, -1.0 <= scale offset <= 1.0 ]]
 		1 => ['Position' => [-0.25 , 0]],
 		2 => ['Position' => [ 0.25 , 0]],
 		3 => ['Position' => [-0.125, 0]],
