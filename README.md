@@ -2,7 +2,7 @@ ApuMmlPlayer
 ============
 
 疑似APUによるMMLプレイヤーです。
-出力結果は function [makeWaveData] を使って、WAVファイルで保存できます。
+出力結果は、よや(id:yoya)様の function [makeWaveData] を使って、WAVファイルで保存できます。
 
 矩形波2ch、三角波1ch、ノイズ1chの単純な出力ができます。
 
@@ -10,7 +10,7 @@ ApuMmlPlayer
 MMLのコマンドは部分的なサポートです。
 
 It is an MML player by pseudo APU.
-The output can be saved as a WAV file using function [makeWaveData].
+The output can be saved as a WAV file using function [makeWaveData] by yoya.
 
 Simple output of 2 channels of square wave, 1 channel of triangle wave and 1 channel of noise is possible.
 
@@ -22,7 +22,7 @@ Use extentions
 --------------
 * composer
 * mbstring
-* makeWaveData
+* [makeWaveData]
 
 Usage
 -----
