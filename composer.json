@@ -1,0 +1,22 @@
+{
+    "name": "mirror785/apu-mml-player",
+    "description": "It is an MML player by pseudo APU.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "MIRROR",
+            "email": "mirror785@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {},
+    "require-dev": {
+        "phpunit/phpunit": "^9.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "MIRROR785\\ApuMmlPlayer\\": "src/"
+        }
+    }
+}
