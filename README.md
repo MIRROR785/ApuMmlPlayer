@@ -31,30 +31,36 @@ Installation
 
 1. Make project directory.
 
-```console
-$ mkdir sample
-$ cd sample
-```
+    プロジェクトのディレクトリを作成。
+
+    ```console
+    $ mkdir sample
+    $ cd sample
+    ```
 
 
 2. Create `composer.json`.
 
-```json
-{
-    "require": {
-        "mirror785/apu-mml-player": "dev-master"
-    },
-    "repositories": [
-       {
-           "type": "vcs",
-           "url": "https://github.com/MIRROR785/ApuMmlPlayer.git"
-       }
-    ]
-}
-```
+    composer.jsonを用意。
+
+    ```json
+    {
+        "require": {
+            "mirror785/apu-mml-player": "dev-master"
+        },
+        "repositories": [
+           {
+               "type": "vcs",
+               "url": "https://github.com/MIRROR785/ApuMmlPlayer.git"
+           }
+        ]
+    }
+    ```
 
 
 3. To install library from Github.
+
+    composerを使って、Githubよりライブラリをインストール。
 
 ```console
 $ php composer.phar install
@@ -63,122 +69,124 @@ $ php composer.phar install
 
 4. Download [makeWaveData].
 
+    makeWaveData.phpをダウンロード。
+
 
 Usage
 -----
 
 1. Loading external files and use declaration.
 
-外部ファイルの読み込みとuse宣言。
+    外部ファイルの読み込みとuse宣言。
 
-```php
-<?php
-require_once('makeWaveData.php');
-require_once('vendor/autoload.php');
+    ```php
+    <?php
+    require_once('makeWaveData.php');
+    require_once('vendor/autoload.php');
 
-use MIRROR785\ApuMmlPlayer\{ApuMmlPlayer, Mml\MmlContainer};
-```
+    use MIRROR785\ApuMmlPlayer\{ApuMmlPlayer, Mml\MmlContainer};
+    ```
 
 
 2. Create MmlContainer.
 
-MMLコンテナを作成。
+    MMLコンテナを作成。
 
-```php
-$container = new MmlContainer([
-    "Title" => "Test",
-    "Tracks" => [
-    /* control  */ 0 => "t120",
-    /* pulse1   */ 1 => "l8 o6cdefgab>cr1cdefgab>c",
-    /* pulse2   */ 2 => "l8 o4r2cdefgab>cr2cdefgab>c",
-    /* triangle */ 3 => "l8 o6r1cdefgab>ccdefgab>c",
-    /* noise    */ 4 => "l8 o1r1r2cdefgab>ccdef",
-]]);
+    ```php
+    $container = new MmlContainer([
+        "Title" => "Test",
+        "Tracks" => [
+        /* control  */ 0 => "t120",
+        /* pulse1   */ 1 => "l8 o6cdefgab>cr1cdefgab>c",
+        /* pulse2   */ 2 => "l8 o4r2cdefgab>cr2cdefgab>c",
+        /* triangle */ 3 => "l8 o6r1cdefgab>ccdefgab>c",
+        /* noise    */ 4 => "l8 o1r1r2cdefgab>ccdef",
+    ]]);
+    ```
 
 
 3. Create ApuMmlPlayer.
 
-ApuMmlPlayerを作成。
+    ApuMmlPlayerを作成。
 
-For simple instance (CD quality, Stereo 16bits PCM):
+    For simple instance (CD quality, Stereo 16bits PCM):
 
-```php
-$player = new ApuMmlPlayer();
-```
+    ```php
+    $player = new ApuMmlPlayer();
+    ```
 
 
-For custom instance:
-
-```php
-$player = new ApuMmlPlayer(
-['SampleRate' => 44100, // サンプリングレート
- 'SampleBits' => 16,    // 量子化ビット数 (PCM: 8 or 16 bits, float PCM: 32 bits)
- 'ChannelCount' => 2,   // チャンネル数 (1:Monaural, 2:Stereo)
- 'VolumeScale' => 1.0,  // ボリューム拡大率
- 'AudioUnits' => [
-   ['Name' => 'unit0',  // オーディオユニット名
-    'Devices' => [
-        // Use device number (1:pulse1, 2:pulse2, 3:triangle, 4:noise) => [ Parameters ]
-        // Parameters : 
-        //   'Position' => [ panning, scale offset ]
-        //   'Panning'  => (-1.5 <= panning <= 1.5)
-        //   'Scale'    => (-1.0 <= scale offset <= 1.0)
-        //   'Late'     => (0.0 <= late)
-        //   'Delay'    => (0.0 <= delay)
-        1 => ['Position' => [-0.25 , 1.0]],
-        2 => ['Position' => [ 0.25 , 1.0]],
-        3 => ['Position' => [-0.125, 1.0]],
-        4 => ['Position' => [ 0.125, 1.0]]]
-   ],
-]]);
-```
+        For custom instance:
+    ```php
+    $player = new ApuMmlPlayer(
+    ['SampleRate' => 44100, // サンプリングレート
+     'SampleBits' => 16,    // 量子化ビット数 (PCM: 8 or 16 bits, float PCM: 32 bits)
+     'ChannelCount' => 2,   // チャンネル数 (1:Monaural, 2:Stereo)
+     'VolumeScale' => 1.0,  // ボリューム拡大率
+     'AudioUnits' => [
+       ['Name' => 'unit0',  // オーディオユニット名
+        'Devices' => [
+            // Use device number (1:pulse1, 2:pulse2, 3:triangle, 4:noise) => [ Parameters ]
+            // Parameters : 
+            //   'Position' => [ panning, scale offset ]
+            //   'Panning'  => (-1.5 <= panning <= 1.5)
+            //   'Scale'    => (-1.0 <= scale offset <= 1.0)
+            //   'Late'     => (0.0 <= late)
+            //   'Delay'    => (0.0 <= delay)
+            1 => ['Position' => [-0.25 , 1.0]],
+            2 => ['Position' => [ 0.25 , 1.0]],
+            3 => ['Position' => [-0.125, 1.0]],
+            4 => ['Position' => [ 0.125, 1.0]]]
+       ],
+    ]]);
+    ```
 
 
 4. Set voice number for pulse device.
 
-矩形波の音色を指定。
+    矩形波の音色を指定。
 
-```php
-$unit = $player->audioUnits['unit0'];
-$apu = $unit->apu;
-$apu->devices[1]->setVoice(2); // 0:12.5%(default), 1:25%, 2:50%, 3:75%
-$apu->devices[2]->setVoice(2); // 0:12.5%(default), 1:25%, 2:50%, 3:75%
-```
+    ```php
+    $unit = $player->audioUnits['unit0'];
+    $apu = $unit->apu;
+    $apu->devices[1]->setVoice(2); // 0:12.5%(default), 1:25%, 2:50%, 3:75%
+    $apu->devices[2]->setVoice(2); // 0:12.5%(default), 1:25%, 2:50%, 3:75%
+    ```
 
 
 5. Set sampling time and loops.
 
-サンプリング時間とループの指定。
+    サンプリング時間とループの指定。
 
-```php
-$player->sampleTime = 60.0; // default: 1.0, max: 300.0
-$player->loopCount = 0;     // default: 0
-$player->loopEnd = true;    // default: true
-```
+    ```php
+    $player->sampleTime = 60.0; // default: 1.0, max: 300.0
+    $player->loopCount = 0;     // default: 0
+    $player->loopEnd = true;    // default: true
+    ```
 
-ループ終了が指定されている場合、サンプリング時間を満たす前に終了します。
+    ループ終了が指定されている場合、サンプリング時間を満たす前に終了します。
 
-If end of loop is specified, it ends before the sampling time is met.
+    If end of loop is specified, it ends before the sampling time is met.
 
 
 6. Get sampling data.
 
-サンプリングデータを取得。
+    サンプリングデータを取得。
 
-```php
-$data = $player->play($container);
-```
+    ```php
+    $data = $player->play($container);
+    ```
 
 
 7. Write wave file.
 
-WAVEファイルとして書き出し。
+    WAVEファイルとして書き出し。
 
-```php
-$handle = fopen(__DIR__ . "test.wav", "wb");
-fwrite($handle, makeWaveData($data, $player->channelCount, $player->sampleBits, $player->sampleRate));
-fclose($handle);
-```
+    ```php
+    $handle = fopen(__DIR__ . "test.wav", "wb");
+    fwrite($handle, makeWaveData($data, $player->channelCount, $player->sampleBits, $player->sampleRate));
+    fclose($handle);
+    ```
 
 
 Sample
