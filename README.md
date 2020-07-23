@@ -124,7 +124,8 @@ Usage
     ```
 
 
-        For custom instance:
+    For custom instance:
+
     ```php
     $player = new ApuMmlPlayer(
     ['SampleRate' => 44100, // サンプリングレート
