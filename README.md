@@ -2,19 +2,27 @@ ApuMmlPlayer
 ============
 
 疑似APUによるMMLプレイヤーです。
+
 出力結果は、よや(id:yoya)様の function [makeWaveData] を使って、WAVファイルで保存できます。
 
 矩形波2ch、三角波1ch、ノイズ1chの単純な出力ができます。
 
+音源位置の変更や、複数のAPUを定義することができます。
+
 スイープ制御等の複雑な処理は未実装です。
+
 MMLのコマンドは部分的なサポートです。
 
 It is an MML player by pseudo APU.
+
 The output can be saved as a WAV file using function [makeWaveData] by yoya.
 
 Simple output of 2 channels of square wave, 1 channel of triangle wave and 1 channel of noise is possible.
 
+You can change the position of the sound source and define multiple APUs.
+
 Complex processing such as sweep control is not implemented yet.
+
 MML commands are partially supported.
 
 
@@ -62,9 +70,9 @@ Installation
 
     composerを使って、Githubよりライブラリをインストール。
 
-```console
-$ php composer.phar install
-```
+    ```console
+    $ php composer.phar install
+    ```
 
 
 4. Download [makeWaveData].
