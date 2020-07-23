@@ -1,8 +1,7 @@
 /vendor/
-/note/
 /bin/
 /obj/
-/sample/
 **.bat
 **.wav
 **/makeWaveData.php
+composer.lock
