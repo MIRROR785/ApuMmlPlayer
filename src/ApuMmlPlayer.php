@@ -370,9 +370,9 @@ class ApuMmlPlayer
      */
     private static function getGcdFrequency($v0, $v1) {
         if ($v0 < $v1) {
-            $v0 = $v0 ^ $v1;
-            $v1 = $v0 ^ $v1;
-            $v0 = $v0 ^ $v1;
+            $t  = $v0;
+            $v0 = $v1;
+            $v1 = $t;
         }
 
         if ($v1 <= 0) {
@@ -395,9 +395,6 @@ class ApuMmlPlayer
      */
     private static function getLcmFrequency($v0, $v1) {
         if ($v0 < $v1) {
-//            $v0 = $v0 ^ $v1;
-//            $v1 = $v0 ^ $v1;
-//            $v0 = $v0 ^ $v1;
             $t  = $v0;
             $v0 = $v1;
             $v1 = $t;

@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "MIRROR785\\ApuMmlPlayer\\": "src/"
+            "MIRROR785\\ApuMmlPlayer\\": [ "src/" ]
         }
     }
 }

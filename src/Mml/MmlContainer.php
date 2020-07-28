@@ -25,7 +25,7 @@ class MmlContainer
     /** @var int[] トラック番号配列 */
     public $trackNumbers;
 
-    /** @var int->char[] トラック情報配列 */
+    /** @var array トラック情報配列 */
     public $tracks;
 
     /**
