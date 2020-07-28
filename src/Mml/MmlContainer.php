@@ -8,6 +8,8 @@
 
 namespace MIRROR785\ApuMmlPlayer\Mml;
 
+use MIRROR785\ApuMmlPlayer\Container\Json;
+
 /**
  * MMLデータを格納するクラス
  */
@@ -30,25 +32,42 @@ class MmlContainer
 
     /**
      * コンストラクタ
-     * @param (key=>value)[] $args 設定情報
+     * @param string|array $args 設定情報
+     *
+     * string (JSON)の場合：
+     * {
+     *   "Title":    "曲名",   //（省略可）
+     *   "Composer": "作曲者", //（省略可）
+     *   "Arranger": "編曲者", //（省略可）
+     *   "Tracks": {
+     *       "トラック番号"  // 0:global, 1:pulse1, 2:pulse2, 3:triangle, 4:noise
+     *        : "MML", ...
+     *    }
+     * }
+     *
+     * arrayの場合：
      * [
-     *   'Title'    => '曲名',   // 省略可
-     *   'Composer' => '作曲者', // 省略可
-     *   'Arranger' => '編曲者', // 省略可
+     *   'Title'    => '曲名',   //（省略可）
+     *   'Composer' => '作曲者', //（省略可）
+     *   'Arranger' => '編曲者', //（省略可）
      *   'Tracks'   => [
      *       トラック番号  // 0:global, 1:pulse1, 2:pulse2, 3:triangle, 4:noise
-     *        => MML
-     *    ],
+     *        => 'MML', ...
+     *    ]
      * ]
      */
-    public function __construct($args) {
+    public function __construct($args = null) {
         $this->title = '';
         $this->composer = '';
         $this->arranger = '';
         $this->trackNumbers = [];
         $this->tracks = [];
 
-        foreach ($args as $key => $value) {
+        if ($args === null) return;
+
+        $values = is_array($args) ? $args : Json::ToArray($args);
+
+        foreach ($values as $key => $value) {
             switch ($key) {
             case 'Title':
                 // 曲名

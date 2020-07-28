@@ -9,6 +9,7 @@
 namespace MIRROR785\ApuMmlPlayer;
 
 use MIRROR785\ApuMmlPlayer\Audio\{AudioConst, AudioUnit, AudioMixer, AudioPacker};
+use MIRROR785\ApuMmlPlayer\Container\Json;
 use MIRROR785\ApuMmlPlayer\Mml\{MmlContainer, MmlSequencer};
 
 /**
@@ -83,26 +84,26 @@ class ApuMmlPlayer
      * @param string|array $config 設定情報
      *
      * string (JSON)の場合：
-     * [
+     * {
      *  "SampleRate": サンプリングレート, //（省略可）
      *  "SampleBits": 量子化ビット数,     //（省略可）PCM : 8 or 16 bits, float PCM : 32 bits
      *  "ChannelCount": チャンネル数,     //（省略可）1:Monaural, 2:Stereo
      *  "VolumeScale": ボリューム拡大率,  //（省略可）
      *
-     *  "AudioUnits": [[
+     *  "AudioUnits": [{
      *    "Name": "オーディオユニット名", //（省略可）
-     *    "Devices": [
+     *    "Devices": {
      *        "デバイス番号"  // 1:pulse1, 2:pulse2, 3:triangle, 4:noise
-     *        : [             // デバイス詳細定義（省略可）
+     *        : {             // デバイス詳細定義（省略可）
      *            "Position": [音像定位, 音量増幅率],
      *            "Panning": 音像定位,  // -1.5 <= panning <= 1.5
      *            "Scale": 音量増幅率,  // -1.0 <= scale   <= 1.0
      *            "Late" : 開始遅延秒,  //  0.0 <= late
      *            "Delay": 発音遅延秒   //  0.0 <= delay
-     *        ]
-     *     ]
-     *   ], ... ]
-     * ]
+     *        }
+     *     }
+     *   }, ... ]
+     * }
      *
      * arrayの場合：
      * [
@@ -131,7 +132,7 @@ class ApuMmlPlayer
         if ($config === null) {
             $config = ['AudioUnits' => [['Devices'=>[1, 2, 3, 4]]]];
         }
-        $values = is_array($config) ? $config : json_decode($config);
+        $values = is_array($config) ? $config : Json::ToArray($config);
 
         // パラメータ、オーディオユニット設定
         foreach ($values as $key => $value) {
@@ -196,6 +197,19 @@ class ApuMmlPlayer
             }
         }
         return $result;
+    }
+
+    /**
+     * 指定ユニット、デバイスの音色を設定
+     * @param string $unitName ユニット名
+     * @param int $deviceNo デバイス番号
+     * @param int $value 設定値
+     */
+    public function setVoice($unitName, $deviceNo, $value) {
+        $audioUnit = $this->audioUnits[$unitName];
+        $apu = $audioUnit->apu;
+        $device = $apu->devices[$deviceNo];
+        $device->setVoice($value);
     }
 
     /**
@@ -268,11 +282,23 @@ class ApuMmlPlayer
 
     /**
      * テストサウンドの出力
-     * @param key=>value $notes 発音指示情報
-     * ['Voice'=>音色番号, 'Volume'=>音量, 'NoteNo'=>ノート番号]
+     * @param string|array $args 発音指示情報
+     *
+     * string (JSON)の場合：
+     * { "audio unit name": {
+     *    "device number": {"Voice": 音色番号, "Volume": 音量, "NoteNo": ノート番号 or "Octave": オクターブ, "KeyNo": キー番号}, ... ,
+     * }, ... }
+     *
+     * arrayの場合：
+     * [ audio unit name => [
+     *    device number => ['Voice'=>音色番号, 'Volume'=>音量, 'NoteNo'=>ノート番号 or 'Octave'=>オクターブ, 'KeyNo'=>キー番号], ... ,
+     * ], ... ]
+     *
      * @return byte[] WAVデータ
      */
-    public function testSound($notes) {
+    public function testSound($args) {
+        $notes = is_array($args) ? $args : Json::ToArray($args);
+
         // プロパティ検証
         $this->validate();
 
@@ -287,7 +313,12 @@ class ApuMmlPlayer
                 $device = $apu->devices[$trackNo];
                 $device->setVoice($note['Voice']);
                 $device->setVolume($note['Volume']);
-                $device->noteOn($note['NoteNo']);
+
+                if (array_key_exists('NoteNo', $note)) {
+                    $device->noteOn($note['NoteNo']);
+                } else {
+                    $device->noteOn(AudioConst::getNoteNo($note['Octave'], $note['KeyNo']));
+                }
             }
         }
 
@@ -314,11 +345,23 @@ class ApuMmlPlayer
 
     /**
      * 1周期サウンドの出力
-     * @param key=>value $notes 発音指示情報
-     * ['Voice'=>音色番号, 'Volume'=>音量, 'NoteNo'=>ノート番号]
+     * @param string|array $args 発音指示情報
+     *
+     * string (JSON)の場合：
+     * { "audio unit name": {
+     *    "device number": {"Voice": 音色番号, "Volume": 音量, "NoteNo": ノート番号 or "Octave": オクターブ, "KeyNo": キー番号}, ... ,
+     * }, ... }
+     *
+     * arrayの場合：
+     * [ audio unit name => [
+     *    device number => ['Voice'=>音色番号, 'Volume'=>音量, 'NoteNo'=>ノート番号 or 'Octave'=>オクターブ, 'KeyNo'=>キー番号], ... ,
+     * ], ... ]
+     *
      * @return byte[] WAVデータ
      */
-    public function oneCycleSound($notes) {
+    public function oneCycleSound($args) {
+        $notes = is_array($args) ? $args : Json::ToArray($args);
+
         // プロパティ検証
         $this->validate();
 
@@ -330,7 +373,12 @@ class ApuMmlPlayer
                 $device = $apu->devices[$trackNo];
                 $device->setVoice($note['Voice']);
                 $device->setVolume($note['Volume']);
-                $device->noteOn($note['NoteNo']);
+
+                if (array_key_exists('NoteNo', $note)) {
+                    $device->noteOn($note['NoteNo']);
+                } else {
+                    $device->noteOn(AudioConst::getNoteNo($note['Octave'], $note['KeyNo']));
+                }
 
                 $freq = $device->getCurrentFrequency();
                 $lcmFrequency = self::getLcmFrequency($freq, $lcmFrequency);
