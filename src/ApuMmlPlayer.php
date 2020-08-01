@@ -200,16 +200,97 @@ class ApuMmlPlayer
     }
 
     /**
-     * 指定ユニット、デバイスの音色を設定
-     * @param string $unitName ユニット名
-     * @param int $deviceNo デバイス番号
-     * @param int $value 設定値
+     * デバイスのパラメータを設定
+     * @param string|array $args デバイスパラメータ情報
+     *
+     * string (JSON)の場合：
+     * { "audio unit name": {
+     *    "device number": {
+     *      "Late": 開始遅延時間(sec),
+     *      "Voice": 音色番号,
+     *      "Volume": 音量,
+     *      "OffsetVolume": 音量オフセット,
+     *      "NoteNo": ノート番号 or "Octave": オクターブ, "KeyNo": キー番号,
+     *      "OffsetNote": ノートオフセット,
+     *      "OffsetFrequency": 周波数オフセット,
+     *      "Delay": 発音遅延時間(sec),
+     *      "Note":  発音(bool)
+     *    }, ... ,
+     * }, ... }
+     *
+     * arrayの場合：
+     * [ 'audio unit name' => [
+     *    device number => [
+     *      'Late'   => 開始遅延時間(sec),
+     *      'Voice'  => 音色番号,
+     *      'Volume' => 音量,
+     *      'OffsetVolume' => 音量オフセット,
+     *      'NoteNo' => ノート番号 or 'Octave' => オクターブ, 'KeyNo' => キー番号,
+     *      'OffsetNote'=> ノートオフセット,
+     *      'OffsetFrequency'=> 周波数オフセット,
+     *      'Delay'  => 発音遅延時間(sec),
+     *      'Note'   => 発音(bool)
+     *    ], ... ,
+     * ], ... ]
      */
-    public function setVoice($unitName, $deviceNo, $value) {
-        $audioUnit = $this->audioUnits[$unitName];
-        $apu = $audioUnit->apu;
-        $device = $apu->devices[$deviceNo];
-        $device->setVoice($value);
+    public function setDeviceParameter($args) {
+        $params = is_array($args) ? $args : Json::ToArray($args);
+
+        foreach ($params as $name => $devices) {
+            $apu = $this->audioUnits[$name]->apu;
+
+            foreach ($devices as $deviceNo => $values) {
+                $device = $apu->devices[$deviceNo];
+
+                foreach ($values as $key => $value) {
+                    switch ($key) {
+                    case 'Late':
+                        $device->setLate($value);
+                        break;
+
+                    case 'Voice':
+                        $device->setVoice($value);
+                        break;
+
+                    case 'Volume':
+                        $device->setVolume($value);
+                        break;
+
+                    case 'OffsetVolume':
+                        $device->setOffsetVolume($value);
+                        break;
+
+                    case 'NoteNo':
+                        $device->noteOn($value);
+                        break;
+
+                    case 'KeyNo':
+                        $device->noteOn(AudioConst::getNoteNo($values['Octave'], $value));
+                        break;
+
+                    case 'OffsetNote':
+                        $device->setOffsetNote($value);
+                        break;
+
+                    case 'OffsetFrequency':
+                        $device->setOffsetFrequency($value);
+                        break;
+
+                    case 'Delay':
+                        $device->setDelay($value);
+                        break;
+
+                    case 'Note':
+                        if ($value === true) {
+                            $device->noteOn();
+                        } else {
+                            $device->noteOff();
+                        }
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -282,45 +363,21 @@ class ApuMmlPlayer
 
     /**
      * テストサウンドの出力
-     * @param string|array $args 発音指示情報
-     *
-     * string (JSON)の場合：
-     * { "audio unit name": {
-     *    "device number": {"Voice": 音色番号, "Volume": 音量, "NoteNo": ノート番号 or "Octave": オクターブ, "KeyNo": キー番号}, ... ,
-     * }, ... }
-     *
-     * arrayの場合：
-     * [ audio unit name => [
-     *    device number => ['Voice'=>音色番号, 'Volume'=>音量, 'NoteNo'=>ノート番号 or 'Octave'=>オクターブ, 'KeyNo'=>キー番号], ... ,
-     * ], ... ]
-     *
+     * @param string|array $args デバイスパラメータ情報
      * @return byte[] WAVデータ
      */
-    public function testSound($args) {
-        $notes = is_array($args) ? $args : Json::ToArray($args);
-
+    public function testSound($args = null) {
         // プロパティ検証
         $this->validate();
+
+        // デバイス設定
+        if ($args !== null) {
+            $this->setDeviceParameter($args);
+        }
 
         // サンプリング初期化
         $totalSamples = $this->sampleRate * $this->sampleTime;
         $data = '';
-
-        // テストサウンド設定
-        foreach ($notes as $name => $values) {
-            $apu = $this->audioUnits[$name]->apu;
-            foreach ($values as $trackNo => $note) {
-                $device = $apu->devices[$trackNo];
-                $device->setVoice($note['Voice']);
-                $device->setVolume($note['Volume']);
-
-                if (array_key_exists('NoteNo', $note)) {
-                    $device->noteOn($note['NoteNo']);
-                } else {
-                    $device->noteOn(AudioConst::getNoteNo($note['Octave'], $note['KeyNo']));
-                }
-            }
-        }
 
         // テストサウンドサンプリング
         for ($i = 0; $i < $totalSamples; ++$i) {
@@ -345,43 +402,27 @@ class ApuMmlPlayer
 
     /**
      * 1周期サウンドの出力
-     * @param string|array $args 発音指示情報
-     *
-     * string (JSON)の場合：
-     * { "audio unit name": {
-     *    "device number": {"Voice": 音色番号, "Volume": 音量, "NoteNo": ノート番号 or "Octave": オクターブ, "KeyNo": キー番号}, ... ,
-     * }, ... }
-     *
-     * arrayの場合：
-     * [ audio unit name => [
-     *    device number => ['Voice'=>音色番号, 'Volume'=>音量, 'NoteNo'=>ノート番号 or 'Octave'=>オクターブ, 'KeyNo'=>キー番号], ... ,
-     * ], ... ]
-     *
+     * @param string|array $args デバイスパラメータ情報
      * @return byte[] WAVデータ
      */
-    public function oneCycleSound($args) {
-        $notes = is_array($args) ? $args : Json::ToArray($args);
-
+    public function oneCycleSound($args = null) {
         // プロパティ検証
         $this->validate();
 
-        // テストサウンド設定
+        // デバイス設定
+        if ($args !== null) {
+            $this->setDeviceParameter($args);
+        }
+
+        // 設定
         $lcmFrequency = 0;
-        foreach ($notes as $name => $values) {
-            $apu = $this->audioUnits[$name]->apu;
-            foreach ($values as $trackNo => $note) {
-                $device = $apu->devices[$trackNo];
-                $device->setVoice($note['Voice']);
-                $device->setVolume($note['Volume']);
-
-                if (array_key_exists('NoteNo', $note)) {
-                    $device->noteOn($note['NoteNo']);
-                } else {
-                    $device->noteOn(AudioConst::getNoteNo($note['Octave'], $note['KeyNo']));
+        foreach ($this->audioUnits as $audioUnit) {
+            $apu = $audioUnit->apu;
+            foreach ($apu->devices as $deviceNo => $device) {
+                if (!$device->isNoteOff()) {
+                    $freq = $device->getCurrentFrequency();
+                    $lcmFrequency = self::getLcmFrequency($freq, $lcmFrequency);
                 }
-
-                $freq = $device->getCurrentFrequency();
-                $lcmFrequency = self::getLcmFrequency($freq, $lcmFrequency);
             }
         }
 

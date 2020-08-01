@@ -382,20 +382,35 @@ abstract class AudioDevice
 
     /**
      * サンプリングレートを設定
-     * @param int $value
+     * @param int $value サンプリングレート
      */
     public function setSampleRate($value) {
         $this->sampleRate = $value;
     }
 
     /**
+     * サンプリングレートを取得
+     * @return int サンプリングレート
+     */
+    public function getSampleRate() {
+        return $this->sampleRate;
+    }
+
+    /**
      * 開始遅延時間を設定
-     * @param double $value
+     * @param double $value 開始遅延時間
      */
     public function setLate($value) {
         $this->late = $value;
         $this->lateCount = (int)($this->sampleRate * $this->late);
-        //echo '$this->lateCount ='.$this->lateCount."\n";
+    }
+
+    /**
+     * 開始遅延時間を取得
+     * @return double 開始遅延時間
+     */
+    public function getLate() {
+        return $this->late;
     }
 
     /**
@@ -411,6 +426,14 @@ abstract class AudioDevice
     }
 
     /**
+     * 音色を取得
+     * @return int 音色
+     */
+    public function getVoice() {
+        return $this->getVoiceValue();
+    }
+
+    /**
      * 音量を設定
      * @param int $value 音量
      */
@@ -420,6 +443,14 @@ abstract class AudioDevice
         } else {
             $this->setVolumeValue($value);
         }
+    }
+
+    /**
+     * 音量を取得
+     * @return int 音量
+     */
+    public function getVolume() {
+        return $this->volume;
     }
 
     /**
@@ -435,6 +466,14 @@ abstract class AudioDevice
     }
 
     /**
+     * 音量オフセットを取得
+     * @return int 音量オフセット
+     */
+    public function getOffsetVolume() {
+        return $this->offsetVolume;
+    }
+
+    /**
      * ノート番号を設定
      * @param int $value ノート番号
      */
@@ -444,6 +483,14 @@ abstract class AudioDevice
         } else {
             $this->setNoteNoValue($value);
         }
+    }
+
+    /**
+     * ノート番号を取得
+     * @return int ノート番号
+     */
+    public function getNoteNo() {
+        return $this->noteNo;
     }
 
     /**
@@ -459,6 +506,14 @@ abstract class AudioDevice
     }
 
     /**
+     * ノートオフセットを取得
+     * @return int ノートオフセット
+     */
+    public function getOffsetNote() {
+        return $this->offsetNote;
+    }
+
+    /**
      * 周波数オフセットを設定
      * @param int $value 周波数オフセット
      */
@@ -468,6 +523,14 @@ abstract class AudioDevice
         } else {
             $this->setOffsetFrequencyValue($value);
         }
+    }
+
+    /**
+     * 周波数オフセットを取得
+     * @return int 周波数オフセット
+     */
+    public function getOffsetFrequency() {
+        return $this->getOffsetFrequencyValue();
     }
 
     /**
@@ -483,8 +546,16 @@ abstract class AudioDevice
     }
 
     /**
+     * 発音遅延時間を取得
+     * @return double 発音遅延時間
+     */
+    public function getDelay() {
+        return $this->delay;
+    }
+
+    /**
      * ノートオン
-     * @param int $value ノート値
+     * @param int $value ノート番号
      */
     public function noteOn($noteNo = null) {
         if ($this->lateCount > 0) {
@@ -503,6 +574,14 @@ abstract class AudioDevice
         } else {
             $this->setNoteOff();
         }
+    }
+
+    /**
+     * 発音停止判定を取得
+     * @return bool 判定結果
+     */
+    public function isNoteOff() {
+        return $this->stopped;
     }
 
     /**
@@ -530,6 +609,14 @@ abstract class AudioDevice
      * @param int $value 音色
      */
     public function setVoiceValue($value) {
+    }
+
+    /**
+     * 音色を取得
+     * @return int 音色
+     */
+    public function getVoiceValue() {
+        return 0;
     }
 
     /**
@@ -569,6 +656,14 @@ abstract class AudioDevice
      * @param int $value 周波数オフセット
      */
     public function setOffsetFrequencyValue($value) {
+    }
+
+    /**
+     * 周波数オフセットを取得
+     * @return int 周波数オフセット
+     */
+    public function getOffsetFrequencyValue() {
+        return 0;
     }
 
     /**

@@ -46,11 +46,27 @@ class PulseDevice extends AudioDevice
     }
 
     /**
+     * 音色を取得
+     * @return int 音色
+     */
+    public function getVoiceValue() {
+        return $this->dutyCycle;
+    }
+
+    /**
      * 周波数オフセットを設定
      * @param int $value 周波数オフセット
      */
     public function setOffsetFrequencyValue($value) {
         $this->offsetFrequency = AudioConst::getValue($value, -64, 63);
+    }
+
+    /**
+     * 周波数オフセットを取得
+     * @return int 周波数オフセット
+     */
+    public function getOffsetFrequencyValue() {
+        return $this->offsetFrequency;
     }
 
     /**

@@ -51,6 +51,14 @@ class NoiseDevice extends AudioDevice
     }
 
     /**
+     * 音色を取得
+     * @return int 音色
+     */
+    public function getVoiceValue() {
+        return $this->shortFreq ? 1 : 0;
+    }
+
+    /**
      * サンプリング
      * @return int サンプリング情報
      */

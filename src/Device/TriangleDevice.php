@@ -43,6 +43,14 @@ class TriangleDevice extends AudioDevice
     }
 
     /**
+     * 周波数オフセットを取得
+     * @return int 周波数オフセット
+     */
+    public function getOffsetFrequencyValue() {
+        return $this->offsetFrequency;
+    }
+
+    /**
      * サンプリング値を取得
      * @return int サンプリング値
      */
@@ -56,7 +64,6 @@ class TriangleDevice extends AudioDevice
         $theta = (int)($this->cycleCount * 8 / M_PI) * M_PI / 8;
         $d = (2 * acos(cos($theta)) - M_PI) / M_PI;
         $v = $this->amp * $d;
-        //echo $v."\n";
 
         $this->cycleCount += $this->cycleDelta;
 
