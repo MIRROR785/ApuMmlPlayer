@@ -80,6 +80,18 @@ Installation
     makeWaveData.phpをダウンロード。
 
 
+Update
+------
+
+1. To update library from Github.
+
+    composerを使って、Githubよりライブラリを更新。
+
+    ```console
+    $ php composer.phar update
+    ```
+
+
 Usage
 -----
 
