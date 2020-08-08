@@ -36,8 +36,8 @@ class AudioUnit
 
     /**
      * コンストラクタ
-     * @param int サンプリングレート
-     * @param array デバイス詳細定義（トラック、定位・遅延パラメータ）
+     * @param int $sampleRate サンプリングレート
+     * @param array $params デバイス詳細定義（トラック、定位・遅延パラメータ）
      */
     public function __construct($sampleRate, $params) {
         $this->name = null;
