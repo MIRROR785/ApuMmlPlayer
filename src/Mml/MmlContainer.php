@@ -95,4 +95,87 @@ class MmlContainer
             }
         }
     }
+
+    /**
+     * MMLテキストの解析
+     * @param テキスト
+     * @return コンテナ情報
+     */
+    public static function parse($text) {
+        $container = new MmlContainer();
+        $text = preg_replace("/\/\*.*\*\//", "", $text);
+        $lines = preg_split("/\r*\n|\r/", $text, -1, PREG_SPLIT_NO_EMPTY);
+        $trackNo = 0;
+        $tracks = [0=>'', 1=>'', 2=>'', 3=>'', 4=>''];
+
+        foreach ($lines as $line) {
+            $l = ltrim(preg_replace("/\/\/.*/", "", $line));
+            $l = preg_replace("/[ \t]+/", " ", $l);
+            $c = strpos($l, ' ');
+
+            if ($c === false) {
+                $tracks[$trackNo] .= $line;
+
+            } else {
+                $key = substr($line, 0, $c);
+                $value = substr($line, $c + 1);
+
+                switch ($key) {
+                case '#Title':
+                    // 曲名
+                    $container->title = $value;
+                    break;
+
+                case '#Composer':
+                    // 作曲名
+                    $container->composer = $value;
+                    break;
+
+                case '#Arranger':
+                    // 編曲名
+                    $container->arranger = $value;
+                    break;
+
+                default:
+                    $tr = strtoupper($key);
+                    switch ($tr) {
+                    case 'TR0':
+                        $trackNo = 0;
+                        break;
+                    case 'TR1':
+                        $trackNo = 1;
+                        break;
+                    case 'TR2':
+                        $trackNo = 2;
+                        break;
+                    case 'TR3':
+                        $trackNo = 3;
+                        break;
+                    case 'TR4':
+                        $trackNo = 4;
+                        break;
+                    default:
+                        $value = $l;
+                        break;
+                    }
+
+                    $tracks[$trackNo] .= $value;
+                    break;
+                }
+            }
+        }
+
+        for ($trackNo = 0; $trackNo <= 4; ++$trackNo) {
+            $mml = $tracks[$trackNo];
+            if ($mml !== '') {
+                $mml = preg_replace("/\r*\n|\r|\t| +/", "", $mml) . "\n";
+                $container->tracks[$trackNo] = preg_split("//u", $mml, -1, PREG_SPLIT_NO_EMPTY);
+                if ($trackNo > 0) {
+                    $container->trackNumbers[] = $trackNo;
+                }
+            }
+        }
+
+        return $container;
+    }
 }

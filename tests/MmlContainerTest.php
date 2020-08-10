@@ -15,23 +15,42 @@ class MmlContainerTest extends TestCase
         $this->assertSame('Alma', $container->composer);
         $this->assertSame('@MIRROR_', $container->arranger);
         $this->assertSame(4, count($container->tracks));
+
+        $this->assertSame('t120'."\n", join($container->tracks[0]));
+        $this->assertSame('l8Lo6rgggggab>c<afarab>cd<gr>frfede<g>cerrrrr<gggggab>c<a>cfrfffggggggggfffeerrr'."\n", join($container->tracks[1]));
+        $this->assertSame('l8Lo4cc<g>ccc<g>cffcfffcfgbb>ddd<bgcc<g>ccc<g>ccc<g>ccc<g>cffffg+g+g+g+ggb>d<ggb>d<ccefffed'."\n", join($container->tracks[2]));
+        $this->assertSame('l8Lo6reeeeefgafcfrfgabdr>drdc<b>c<da>crrrrr<eeeeefgafa>crcccdededef<b>c<gb>ccc<ba'."\n", join($container->tracks[3]));
     }
 
     public function test_json_parse() {
         //var_dump(MmlSample::$penguin_json);
-        echo json_encode(MmlSample::$penguin, true);
-        
+        //echo json_encode(MmlSample::$penguin, true);
         $container = new MmlContainer(MmlSample::$penguin_json);
-        var_dump($container);
+        //var_dump($container);
 
         $this->assertSame('ICE BALLER - Penguin', $container->title);
         $this->assertSame('Alma', $container->composer);
         $this->assertSame('@MIRROR_', $container->arranger);
         $this->assertSame(4, count($container->tracks));
 
-        $this->assertTrue(array_key_exists(0, $container->tracks));
-        $this->assertTrue(array_key_exists(1, $container->tracks));
-        $this->assertTrue(array_key_exists(2, $container->tracks));
-        $this->assertTrue(array_key_exists(3, $container->tracks));
+        $this->assertSame('t120'."\n", join($container->tracks[0]));
+        $this->assertSame('l8Lo6rgggggab>c<afarab>cd<gr>frfede<g>cerrrrr<gggggab>c<a>cfrfffggggggggfffeerrr'."\n", join($container->tracks[1]));
+        $this->assertSame('l8Lo4cc<g>ccc<g>cffcfffcfgbb>ddd<bgcc<g>ccc<g>ccc<g>ccc<g>cffffg+g+g+g+ggb>d<ggb>d<ccefffed'."\n", join($container->tracks[2]));
+        $this->assertSame('l8Lo6reeeeefgafcfrfgabdr>drdc<b>c<da>crrrrr<eeeeefgafa>crcccdededef<b>c<gb>ccc<ba'."\n", join($container->tracks[3]));
+    }
+
+    public function test_text_parse() {
+        $container = MmlContainer::parse(MmlSample::$penguin_text);
+        //var_dump($container);
+
+        $this->assertSame('ICE BALLER - Penguin', $container->title);
+        $this->assertSame('Alma', $container->composer);
+        $this->assertSame('@MIRROR_', $container->arranger);
+        $this->assertSame(4, count($container->tracks));
+
+        $this->assertSame('t120'."\n", join($container->tracks[0]));
+        $this->assertSame('l8Lo6rgggggab>c<afarab>cd<gr>frfede<g>cerrrrr<gggggab>c<a>cfrfffggggggggfffeerrr'."\n", join($container->tracks[1]));
+        $this->assertSame('l8Lo4cc<g>ccc<g>cffcfffcfgbb>ddd<bgcc<g>ccc<g>ccc<g>ccc<g>cffffg+g+g+g+ggb>d<ggb>d<ccefffed'."\n", join($container->tracks[2]));
+        $this->assertSame('l8Lo6reeeeefgafcfrfgabdr>drdc<b>c<da>crrrrr<eeeeefgafa>crcccdededef<b>c<gb>ccc<ba'."\n", join($container->tracks[3]));
     }
 }
