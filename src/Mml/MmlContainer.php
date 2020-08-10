@@ -117,8 +117,8 @@ class MmlContainer
                 $tracks[$trackNo] .= $line;
 
             } else {
-                $key = substr($line, 0, $c);
-                $value = substr($line, $c + 1);
+                $key = substr($l, 0, $c);
+                $value = substr($l, $c + 1);
 
                 switch ($key) {
                 case '#Title':
