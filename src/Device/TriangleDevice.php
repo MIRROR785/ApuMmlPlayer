@@ -30,7 +30,7 @@ class TriangleDevice extends AudioDevice
      */
     public function reset() {
         parent::reset();
-        $this->amp = AudioDevice::BASE_AMP;
+        $this->amp = AudioDevice::BaseAmp;
         $this->offsetFrequency = 0;
     }
 

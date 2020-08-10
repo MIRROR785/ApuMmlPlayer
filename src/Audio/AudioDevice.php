@@ -304,7 +304,7 @@ class NoteControl implements DeviceController
 abstract class AudioDevice
 {
     /**  @var int 基本増幅量 */
-    const BASE_AMP = 0x800;
+    const BaseAmp = 0x800;
 
     /** @var int サンプリングレート */
     protected $sampleRate;

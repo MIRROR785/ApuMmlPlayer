@@ -14,7 +14,7 @@ namespace MIRROR785\ApuMmlPlayer\Audio;
 class AudioConst
 {
     /** @var int[] 周波数配列 */
-    private static $frequencies = [
+    private static $Frequencies = [
         /* o1  c     32.703 */     0, // 設定不可
         /*     c+    34.648 */     0, // 設定不可
         /*     d     36.708 */     0, // 設定不可
@@ -126,7 +126,7 @@ class AudioConst
         ];
 
     /** @var int[] ノイズ周数配列 */
-    private static $noiseFrequencies = [
+    private static $NoiseFrequencies = [
         /* F: */ 0x7F2,
         /* E: */ 0x3F9,
         /* D: */ 0x1FC,
@@ -146,14 +146,14 @@ class AudioConst
         ];
 
     /** @var int 最大ノート番号 */
-    private static $maxNoteNo = 0;
+    private static $MaxNoteNo = 0;
 
     /**
      * 初期化処理
      */
     public static function initialize() {
-        if (AudioConst::$maxNoteNo <= 0) {
-            AudioConst::$maxNoteNo = count(AudioConst::$frequencies) - 1;
+        if (AudioConst::$MaxNoteNo <= 0) {
+            AudioConst::$MaxNoteNo = count(AudioConst::$Frequencies) - 1;
         }
     }
 
@@ -173,7 +173,7 @@ class AudioConst
      * @return 周波数
      */
     public static function getFrequency($noteNo) {
-        return AudioConst::$frequencies[AudioConst::getValue($noteNo, 0, AudioConst::$maxNoteNo)];
+        return AudioConst::$Frequencies[AudioConst::getValue($noteNo, 0, AudioConst::$MaxNoteNo)];
     }
 
     /**
@@ -192,7 +192,7 @@ class AudioConst
      * @return ノイズ周波数
      */
     public static function getNoiseFrequency($noiseNo) {
-        return 1789772.5 / AudioConst::$noiseFrequencies[$noiseNo & 0x0f];
+        return 1789772.5 / AudioConst::$NoiseFrequencies[$noiseNo & 0x0f];
     }
 
     /**

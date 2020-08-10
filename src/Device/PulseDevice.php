@@ -79,7 +79,7 @@ class PulseDevice extends AudioDevice
         $noteNo = $this->noteNo + $this->offsetNote;
         $this->tone = AudioConst::getFrequency($noteNo) + $this->offsetFrequency;
         $this->cycleDelta = $this->tone * 2 * M_PI / $this->sampleRate;
-        $this->amp = AudioDevice::BASE_AMP * AudioConst::getValue($this->volume + $this->offsetVolume, 0, 15) / 31;
+        $this->amp = AudioDevice::BaseAmp * AudioConst::getValue($this->volume + $this->offsetVolume, 0, 15) / 31;
 
         $s = sin($this->cycleCount);
         $c = cos($this->cycleCount);

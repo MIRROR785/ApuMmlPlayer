@@ -36,7 +36,7 @@ class NoiseDevice extends AudioDevice
      */
     public function reset() {
         parent::reset();
-        $this->amp = AudioDevice::BASE_AMP;
+        $this->amp = AudioDevice::BaseAmp;
         $this->shortFreq = false;
         $this->reg = 0x8000;
         $this->edge = false;
@@ -66,7 +66,7 @@ class NoiseDevice extends AudioDevice
         $noteNo = $this->noteNo + $this->offsetNote;
         $this->tone = AudioConst::getNoiseFrequency($noteNo);
         $this->cycleDelta = $this->tone * 2 * M_PI / $this->sampleRate;
-        $this->amp = AudioDevice::BASE_AMP * AudioConst::getValue($this->volume + $this->offsetVolume, 0, 15) / 15;
+        $this->amp = AudioDevice::BaseAmp * AudioConst::getValue($this->volume + $this->offsetVolume, 0, 15) / 15;
 
         $s = sin($this->cycleCount);
 
