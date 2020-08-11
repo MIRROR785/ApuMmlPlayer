@@ -8,7 +8,7 @@ class JsonTest extends TestCase
 {
     public function test_json_parse() {
         $container = Json::ToArray(MmlSample::$penguin_json);
-        var_dump($container);
+        //var_dump($container);
 
         $this->assertSame(MmlSample::$penguin, $container);
     }

@@ -103,41 +103,45 @@ class MmlContainer
      */
     public static function parse($text) {
         $container = new MmlContainer();
-        $text = preg_replace("/\/\*.*\*\//", "", $text);
+        $text = preg_replace("/\/\*[\s\S]*\*\//", "", $text);
         $lines = preg_split("/\r*\n|\r/", $text, -1, PREG_SPLIT_NO_EMPTY);
         $trackNo = 0;
         $tracks = [0=>'', 1=>'', 2=>'', 3=>'', 4=>''];
 
         foreach ($lines as $line) {
-            $l = ltrim(preg_replace("/\/\/.*/", "", $line));
+            $l = ltrim(preg_replace("/\/\/[\s\S]*$/", "", $line));
             $l = preg_replace("/[ \t]+/", " ", $l);
+            $s = strpos($l, '#');
             $c = strpos($l, ' ');
 
             if ($c === false) {
-                $tracks[$trackNo] .= $line;
+                $tracks[$trackNo] .= $l;
 
             } else {
                 $key = substr($l, 0, $c);
                 $value = substr($l, $c + 1);
 
-                switch ($key) {
-                case '#Title':
-                    // 曲名
-                    $container->title = $value;
-                    break;
+                if ($s === 0) {
+                    switch ($key) {
+                    case '#Title':
+                        // 曲名
+                        $container->title = $value;
+                        break;
 
-                case '#Composer':
-                    // 作曲名
-                    $container->composer = $value;
-                    break;
+                    case '#Composer':
+                        // 作曲名
+                        $container->composer = $value;
+                        break;
 
-                case '#Arranger':
-                    // 編曲名
-                    $container->arranger = $value;
-                    break;
+                    case '#Arranger':
+                        // 編曲名
+                        $container->arranger = $value;
+                        break;
+                    }
 
-                default:
+                } else {
                     $tr = strtoupper($key);
+
                     switch ($tr) {
                     case 'TR0':
                         $trackNo = 0;
@@ -160,7 +164,6 @@ class MmlContainer
                     }
 
                     $tracks[$trackNo] .= $value;
-                    break;
                 }
             }
         }

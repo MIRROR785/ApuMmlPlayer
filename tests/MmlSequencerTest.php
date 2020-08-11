@@ -9,7 +9,7 @@ class MmlSequencerTest extends TestCase
     public function test_parse() {
         $container = new MmlContainer(MmlSample::$penguin);
         $sequencer = new MmlSequencer($container);
-        var_dump($sequencer);
+        //var_dump($sequencer);
 
         $this->assertSame(false, $sequencer->isEndOfData);
     }
