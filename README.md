@@ -129,12 +129,12 @@ Usage
 
     ```php
     $text = <<<'EOD'
-TR0 t120
-TR1 l8 o6cdefgab>cr1cdefgab>c
-TR2 l8 o4r2cdefgab>cr2cdefgab>c
-TR3 l8 o6r1cdefgab>ccdefgab>c
-TR4 l8 o1r1r2cdefgab>ccdef
-EOD;
+    TR0 t120
+    TR1 l8 o6cdefgab>cr1cdefgab>c
+    TR2 l8 o4r2cdefgab>cr2cdefgab>c
+    TR3 l8 o6r1cdefgab>ccdefgab>c
+    TR4 l8 o1r1r2cdefgab>ccdef
+    EOD;
 
     $container = MmlContainer::parse($text);
     ```
