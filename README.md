@@ -125,6 +125,21 @@ Usage
     ```
 
 
+    From MML text:
+
+    ```php
+    $text = <<<'EOD'
+TR0 t120
+TR1 l8 o6cdefgab>cr1cdefgab>c
+TR2 l8 o4r2cdefgab>cr2cdefgab>c
+TR3 l8 o6r1cdefgab>ccdefgab>c
+TR4 l8 o1r1r2cdefgab>ccdef
+EOD;
+
+    $container = MmlContainer::parse($text);
+    ```
+
+
 3. Create ApuMmlPlayer.
 
     ApuMmlPlayerを作成。
@@ -168,10 +183,12 @@ Usage
     矩形波の音色を指定。
 
     ```php
-    $unit = $player->audioUnits['unit0'];
-    $apu = $unit->apu;
-    $apu->devices[1]->setVoice(2); // 0:12.5%(default), 1:25%, 2:50%, 3:75%
-    $apu->devices[2]->setVoice(2); // 0:12.5%(default), 1:25%, 2:50%, 3:75%
+    $player->setDeviceParameter(
+    ['unit0' => [
+         1 => ['Voice'=>2],   // 0:12.5%(default), 1:25%, 2:50%, 3:75%
+         2 => ['Voice'=>2],   // 0:12.5%(default), 1:25%, 2:50%, 3:75%
+     ],
+    ]);
     ```
 
 
@@ -224,16 +241,17 @@ require_once('vendor/autoload.php');
 
 use MIRROR785\ApuMmlPlayer\{ApuMmlPlayer, Mml\MmlContainer};
 
-$container = new MmlContainer([
-    "Title" => "ICE BALLER - Penguin",
-    "Composer" => "Alma",
-    "Arranger" => "@MIRROR_",
-    "Tracks" => [
-        0 => "t120",
-        1 => "l8 Lo6rgggggab>c<afarab>cd<gr>frfede<g>cerrrrr<gggggab>c<a>cfrfffggggggggfffeerrr",
-        2 => "l8 Lo4cc<g>ccc<g>cffcfffcfgbb>ddd<bgcc<g>ccc<g>ccc<g>ccc<g>cffffg+g+g+g+ggb>d<ggb>d<ccefffed",
-        3 => "l8 Lo6reeeeefgafcfrfgabdr>drdc<b>c<da>crrrrr<eeeeefgafa>crcccdededef<b>c<gb>ccc<ba",
-]]);
+$text = <<<'EOD'
+#Title ICE BALLER - Penguin
+#Composer Alma
+#Arranger @MIRROR_
+TR0 t120
+TR1 l8 Lo6rgggggab>c<afarab>cd<gr>frfede<g>cerrrrr<gggggab>c<a>cfrfffggggggggfffeerrr
+TR2 l8 Lo4cc<g>ccc<g>cffcfffcfgbb>ddd<bgcc<g>ccc<g>ccc<g>ccc<g>cffffg+g+g+g+ggb>d<ggb>d<ccefffed
+TR3 l8 Lo6reeeeefgafcfrfgabdr>drdc<b>c<da>crrrrr<eeeeefgafa>crcccdededef<b>c<gb>ccc<ba
+EOD;
+
+$container = MmlContainer::parse($text);
 
 $player = new ApuMmlPlayer(
 ['SampleRate' => 44100,
@@ -257,15 +275,16 @@ $player = new ApuMmlPlayer(
    ],
 ]]);
 
-$unit = $player->audioUnits['unit0'];
-$apu = $unit->apu;
-$apu->devices[1]->setVoice(2);
-$apu->devices[2]->setVoice(2);
-
-$unit = $player->audioUnits['unit1'];
-$apu = $unit->apu;
-$apu->devices[1]->setVoice(2);
-$apu->devices[2]->setVoice(2);
+$player->setDeviceParameter(
+['unit0' => [
+     1 => ['Voice'=>2],
+     2 => ['Voice'=>2],
+ ],
+ 'unit1' => [
+     1 => ['Voice'=>2],
+     2 => ['Voice'=>2],
+ ],
+]);
 
 $player->sampleTime = 60.0;
 $player->loopCount = 1;
