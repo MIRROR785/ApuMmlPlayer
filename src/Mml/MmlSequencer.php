@@ -435,7 +435,8 @@ class MmlSequencer
                         if (array_key_exists($tr, $apu->devices)) {
                             $device = $apu->devices[$tr];
                             if ($status->key_no !== MmlConst::KNO_R) {
-                                $device->setVoice($status->voice);
+                                // TODO : 音色設定
+                                //$device->setVoice($status->voice);
                                 $device->setVolume($status->volume);
                                 $device->noteOn(AudioConst::getNoteNo($status->key_octave, $status->key_no));
                             } else {
