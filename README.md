@@ -298,7 +298,7 @@ fclose($handle);
 
 License
 -------
-Copyright &copy; 2019 @MIRROR_  
+Copyright 2019 @MIRROR_  
 Distributed under the [MIT].  
 
 [MIT]: http://www.opensource.org/licenses/mit-license.php "MIT License"

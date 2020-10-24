@@ -438,7 +438,7 @@ class MmlSequencer
                                 // TODO : 音色設定
                                 //$device->setVoice($status->voice);
                                 $device->setVolume($status->volume);
-                                $device->noteOn(AudioConst::getNoteNo($status->key_octave, $status->key_no));
+                                $device->noteOn(MmlConst::KNO_COUNT * $status->key_octave + $status->key_no);
                             } else {
                                 $device->noteOff();
                             }
