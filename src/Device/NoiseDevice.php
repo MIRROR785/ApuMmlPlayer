@@ -47,7 +47,7 @@ class NoiseDevice extends AudioDevice
      * @param int $value 音色
      */
     public function setVoiceValue($value) {
-        $this->shortFreq = ($value != 0);
+        $this->shortFreq = ($value > 0) ? true : false;
     }
 
     /**
@@ -65,11 +65,10 @@ class NoiseDevice extends AudioDevice
     public function getSample() {
         $noteNo = $this->noteNo + $this->offsetNote;
         $this->tone = AudioConst::getNoiseFrequency($noteNo);
-        $this->cycleDelta = $this->tone * 2 * M_PI / $this->sampleRate;
+        $this->cycleDelta = $this->tone;
         $this->amp = AudioDevice::BaseAmp * AudioConst::getValue($this->volume + $this->offsetVolume, 0, 15) / 15;
 
-        $s = sin($this->cycleCount);
-
+        $s = sin($this->cycleCount * 2 * M_PI / $this->sampleRate);
         if ($this->edge) {
             if ($s < 0) {
                 $this->edge = false;
@@ -80,14 +79,13 @@ class NoiseDevice extends AudioDevice
             $this->reg |= (($this->reg ^ ($this->reg >> ($this->shortFreq ? 6 : 1))) & 1) << 15;
             $this->edge = true;
         }
-        $v = ($this->reg & 1) ? $this->amp: -$this->amp;
 
         $this->cycleCount += $this->cycleDelta;
-
-        if ($this->cycleCount >= 2 * M_PI) {
-            $this->cycleCount -= 2 * M_PI;
+        if ($this->cycleCount >= $this->sampleRate) {
+            $this->cycleCount -= $this->sampleRate;
         }
 
+        $v = ($this->reg & 1) ? $this->amp: -$this->amp;
         return $v;
     }
 
