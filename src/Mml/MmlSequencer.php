@@ -37,9 +37,6 @@ class MmlTrackStatus
     /** @var int 音長 */
     public $length;
 
-    /** @var int 繰り返し位置 */
-    public $loop;
-
     /** @var int キー番号 */
     public $key_no;
 
@@ -48,6 +45,18 @@ class MmlTrackStatus
 
     /** @var int キー長 */
     public $key_length;
+
+    /** @var int 繰り返しネスト数 */
+    public $loop_nest;
+
+    /** @var int[] 繰り返し開始位置 */
+    public $loop_begin;
+
+    /** @var int[] 繰り返し終了位置 */
+    public $loop_end;
+
+    /** @var int[] 繰り返し回数 */
+    public $loop_count;
 
     /** var bool ループ判定結果 */
     public $is_loop;
@@ -66,12 +75,22 @@ class MmlTrackStatus
         $this->volume = 15;
         $this->octave = 3;
         $this->length = 8;
-        $this->loop = 0xff;
         $this->key_no = MmlConst::KNO_R;
         $this->key_octave = 0;
         $this->key_length = 0;
         $this->is_loop = false;
         $this->lateCount = 0;
+
+        $this->loop_begin = [];
+        $this->loop_end = [];
+        $this->loop_count = [];
+
+        $this->loop_nest = 0;
+        for ($i = 0; $i < MmlConst::LOOP_NEST_MAX; ++$i) {
+            $this->loop_begin[$i] = 0xff;
+            $this->loop_end[$i] = 0;
+            $this->loop_count[$i] = 0;
+        }
     }
 }
 
@@ -227,9 +246,17 @@ class MmlSequencer
                     for ($k = $track[$i]; ; $k = $track[$i]) {
                         if ($k === "\n") {
                             $status->is_loop = true;
-
-                            if ($status->loop < 0xff) {
-                                $i = $status->loop;
+                            $p = $status->loop_begin[0];
+                            if ($p < 0xff) {
+                                $i = $p;
+                                $p = $status->loop_count[0];
+                                if ($p > 0) {
+                                    --$p;
+                                    $status->loop_count[0] = $p;
+                                    if ($p == 0) {
+                                        $status->loop_begin[0] = 0xff;
+                                    }
+                                }
                                 continue;
                             }
 
@@ -336,8 +363,84 @@ class MmlSequencer
                         }
 
                         if ($k === 'L') {
+                            $p = 0;
+                            for (;;) {
+                                ++$i;
+                                $n = $track[$i];
+                                if ($n < '0' || '9' < $n) {
+                                    break;
+                                }
+
+                                $n -= '0';
+                                $p *= 10;
+                                $p += $n;
+                            }
+                            $status->loop_nest = 0;
+                            $status->loop_begin[0] = $i;
+                            $status->loop_count[0] = $p;
+                            continue;
+
+                        } elseif ($k === '[') {
+                            $p = 0;
+                            for (;;) {
+                                ++$i;
+                                $n = $track[$i];
+                                if ($n < '0' || '9' < $n) {
+                                    break;
+                                }
+
+                                $n -= '0';
+                                $p *= 10;
+                                $p += $n;
+                            }
+                            $k = $status->loop_nest;
+                            if ($k < MmlConst::LOOP_NEST_MAX) {
+                                ++$k;
+                                $status->loop_nest = $k;
+                                $status->loop_begin[$k] = $i;
+                                if ($p == 0) $p = 1;
+                                $status->loop_count[$k] = $p;
+                            }
+                            continue;
+
+                        } elseif ($k === ':') {
+                            $k = $status->loop_nest;
+                            $p = $status->loop_count[$k];
                             ++$i;
-                            $status->loop = $i;
+                            if ($p == 0) {
+                                $p = $status->loop_end[$k];
+                                if ($p > 0) {
+                                    $i = $p;
+                                    $status->loop_end[$k] = 0;
+                                    if ($k > 0) {
+                                        --$k;
+                                        $status->loop_nest = $k;
+                                    }
+                                }
+                            }
+                            continue;
+
+                        } elseif ($k === ']') {
+                            ++$i;
+                            $k = $status->loop_nest;
+                            $p = $status->loop_begin[$k];
+                            if ($p < 0xff) {
+                                $status->loop_end[$k] = $i;
+                                $i = $p;
+
+                                $p = $status->loop_count[$k];
+                                if ($p > 0) {
+                                    --$p;
+                                    $status->loop_count[$k] = $p;
+                                }
+                                if ($p == 0) {
+                                    $status->loop_begin[$k] = 0xff;
+                                }
+
+                            } else if ($k > 0) {
+                                --$k;
+                                $status->loop_nest = $k;
+                            }
                             continue;
 
                         } elseif ($k === '<') {
